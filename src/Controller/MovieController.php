@@ -56,7 +56,7 @@ class MovieController extends AbstractController
     public function topRated(): Response
     {
         $movies = $this->omdbClient->requestBySearch('matrix', []);
-        dump($movies);
+        //dump($movies);
 
         return $this->render('movie/top-rated.html.twig', ['movies' => $movies['Search']]);
     }
