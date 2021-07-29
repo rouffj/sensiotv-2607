@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Omdb\OmdbClient;
+use App\Repository\MovieRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,22 +20,24 @@ class MovieController extends AbstractController
      */
     private $omdbClient;
 
-    public function __construct(HttpClientInterface $httpClient)
+    public function __construct(OmdbClient $omdbClient)
     {
-        $apiKey = '28c5b7b1';
-        $omdbHost = 'https://www.omdbapi.com/';
-        $this->omdbClient = new OmdbClient($httpClient, $apiKey, $omdbHost);
+        $this->omdbClient = $omdbClient;
     }
 
     /**
      * @Route("/{imdbId}", name="details", requirements={"imdbId": "tt\d+"})
      */
-    public function details($imdbId): Response
+    public function details($imdbId, MovieRepository $movieRepository): Response
     {
         $movie = $this->omdbClient->requestById($imdbId);
-        dump($movie);
+        $movieFromDb = $movieRepository->findOneBy(['title' => 'Memento']);
+        //dump($movie, $movieFromDb);
 
-        return $this->render('movie/details.html.twig', ['movie' => $movie]);
+        return $this->render('movie/details.html.twig', [
+            'movie' => $movie,
+            'movieFromDb' => $movieFromDb,
+        ]);
     }
 
     /**

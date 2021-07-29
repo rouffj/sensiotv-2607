@@ -4,12 +4,18 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    app.omdb_host: https://www.omdbapi.com/
 
 services:
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+        # Autowiring Option 1. Eviter d'utiliser des variables trop génériques.
+        #bind:
+        #    $omdbHost: '%app.omdb_host%'
+        #    $omdbToken: '%app.omdb_token%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -23,3 +29,19 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    # Déclaration explicite du service.
+    omdb:
+        class: App\Omdb\OmdbClient
+        arguments:
+            $omdbHost: '%app.omdb_host%'
+            $omdbToken: '%env(APP_OMDB_TOKEN)%'
+            $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
+
+    # Autowiring Option 2
+    #App\Omdb\OmdbClient:
+    #    arguments:
+    #        $omdbHost: '%app.omdb_host%'
+    #        $omdbToken: '%env(APP.OMDB_TOKEN)%'
+
+    App\Omdb\OmdbClient: '@omdb'
